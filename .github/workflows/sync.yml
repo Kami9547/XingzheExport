@@ -1,4 +1,24 @@
+name: Sync Xingzhe To Strava
 on:
   schedule:
-    # UTC时间，下面示例每4小时执行一次；北京时间=UTC+8
     - cron: "0 */4 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup DotNet 9
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+      - name: Run sync
+        env:
+          XINGZHE_COOKIE: ${{ secrets.XINGZHE_COOKIE }}
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+          TZ: Asia/Shanghai
+        run: |
+          dotnet run -- sync --data-dir ./data --upload-strava
